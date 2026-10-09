@@ -17,6 +17,7 @@ import {
 import { useStore } from '@/store/AppStore';
 import { useLang } from '@/hooks/useLang';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
+import { ErrorBoundary } from '@/components/feedback/ErrorBoundary';
 import { cn } from '@/lib/cn';
 import { Logo, KidAvatar } from '@/components/illustrations/Brand';
 import { ChildSelector, LanguageSelector } from '@/components/navigation/Selectors';
@@ -166,7 +167,9 @@ export default function ParentLayout() {
 
       <main className="mx-auto max-w-[1320px] px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12">
         <motion.div key={location.pathname} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+          <ErrorBoundary resetKey={location.pathname}>
           <Outlet />
+        </ErrorBoundary>
         </motion.div>
       </main>
 

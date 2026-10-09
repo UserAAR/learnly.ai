@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
 import { useStore } from '@/store/AppStore';
@@ -25,26 +25,50 @@ import TeacherRequests from '@/features/teacher/TeacherRequests';
 import TeacherRequestDetail from '@/features/teacher/TeacherRequestDetail';
 import TeacherProfile from '@/features/teacher/TeacherProfile';
 import NotFound from '@/features/NotFound';
+import { ErrorBoundary } from '@/components/feedback/ErrorBoundary';
 
 /** Mock frontend route guard — controls the simulated experience only, not real security. */
 function RequireRole({ role, children }: { role: Role; children: ReactNode }) {
   const { user, childMode } = useStore();
   const location = useLocation();
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   if (user.role !== role) return <Navigate to={homePathFor(user.role)} replace />;
   if (role === 'parent' && childMode.active) return <Navigate to="/child" replace />;
   return <>{children}</>;
 }
 
+/** Number of in-app route changes since the document loaded (0 while rendering the first URL). */
+let inAppNavigations = 0;
+
+/** True when this document was opened by browser Back/Forward rather than a link, bookmark, typed URL or reload. */
+function documentOpenedFromHistory(): boolean {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    return nav?.type === 'back_forward';
+  } catch {
+    return false;
+  }
+}
+
 function RequireChildMode({ children }: { children: ReactNode }) {
   const { user, childMode, enterChildMode, selectedChild } = useStore();
-  // Direct navigation to /child starts child mode once (on mount). Leaving via the PIN must not re-enter it.
+  const location = useLocation();
+  // Opening or refreshing a /child URL directly starts child mode. Reaching /child through browser
+  // history after the parent left via the PIN must NOT silently restart it (that trapped the parent
+  // in child mode, since every parent route then redirected back to /child).
+  // Decided once, when this guard mounts: later child-mode changes (the PIN exit) must not re-trigger it.
+  const [enterOnMount] = useState(
+    () => user?.role === 'parent' && !childMode.active && inAppNavigations === 0 && !documentOpenedFromHistory(),
+  );
+
   useEffect(() => {
-    if (user?.role === 'parent' && !childMode.active) enterChildMode(selectedChild.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (enterOnMount) enterChildMode(selectedChild.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount by design
   }, []);
-  if (!user) return <Navigate to="/login" replace />;
+
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   if (user.role !== 'parent') return <Navigate to={homePathFor(user.role)} replace />;
+  if (!childMode.active && !enterOnMount) return <Navigate to="/parent/dashboard" replace />;
   return <>{children}</>;
 }
 
@@ -55,14 +79,25 @@ function HomeRedirect() {
   return <Navigate to={homePathFor(user.role)} replace />;
 }
 
+/** Route-level error boundary: resets automatically when the user navigates elsewhere. */
+function RouteBoundary({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  return <ErrorBoundary resetKey={location.pathname} variant="app">{children}</ErrorBoundary>;
+}
+
 export default function App() {
   const reduce = useReduceMotion();
+  const location = useLocation();
+  useEffect(() => {
+    inAppNavigations += 1;
+  }, [location.key]);
   useEffect(() => {
     document.documentElement.dataset.reduceMotion = String(reduce);
   }, [reduce]);
 
   return (
     <MotionConfig reducedMotion={reduce ? 'always' : 'never'}>
+      <RouteBoundary>
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/login" element={<LoginPage />} />
@@ -115,6 +150,7 @@ export default function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </RouteBoundary>
     </MotionConfig>
   );
 }

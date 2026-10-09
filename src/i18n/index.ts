@@ -4,9 +4,9 @@ import az from './locales/az';
 import en from './locales/en';
 import ru from './locales/ru';
 import { STORAGE_KEYS, readJSON } from '@/lib/mock-storage';
-import type { Preferences } from '@/types';
+import { sanitizePrefs } from '@/lib/storage-schema';
 
-const stored = readJSON<Partial<Preferences>>(STORAGE_KEYS.prefs);
+const stored = sanitizePrefs(readJSON(STORAGE_KEYS.prefs));
 
 /** Azerbaijani genitive suffix with vowel harmony: Aylin → Aylinin, Leyla → Leylanın, Murad → Muradın. */
 export function azGenitive(name: string): string {
@@ -22,7 +22,7 @@ export function azGenitive(name: string): string {
 
 void i18n.use(initReactI18next).init({
   resources: { az: { translation: az }, en: { translation: en }, ru: { translation: ru } },
-  lng: stored?.language ?? 'az',
+  lng: stored.language,
   fallbackLng: 'az',
   interpolation: { escapeValue: false },
   returnNull: false,

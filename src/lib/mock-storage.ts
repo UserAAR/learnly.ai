@@ -9,11 +9,22 @@ export const STORAGE_KEYS = {
   childMode: 'learnly:child-mode:v1',
 } as const;
 
-export function readJSON<T>(key: string): T | null {
+/**
+ * Reads and parses a stored value. Returns null when the key is missing, storage is unavailable
+ * or the value is not valid JSON. Callers must still validate the shape (see storage-schema.ts).
+ */
+export function readJSON<T = unknown>(key: string): T | null {
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : null;
+    raw = window.localStorage.getItem(key);
   } catch {
+    return null; // storage blocked (privacy mode, sandboxed iframe)
+  }
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    if (import.meta.env.DEV) console.warn(`[learnly:storage] "${key}" contained invalid JSON and was ignored`);
     return null;
   }
 }

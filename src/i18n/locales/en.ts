@@ -835,6 +835,14 @@ const en = {
     demoReset: 'Demo data reset',
     demoResetText: 'All demo data was restored to the initial state.',
   },
+  errors: {
+    title: 'This screen couldn’t be displayed',
+    text: 'An unexpected error occurred. Your saved data is safe.',
+    retry: 'Try again',
+    reload: 'Reload page',
+    home: 'Go to start page',
+    reset: 'Reset demo data and start again',
+  },
   notFound: {
     title: 'Page not found',
     text: 'Looks like we took a wrong turn. Let’s go back home.',

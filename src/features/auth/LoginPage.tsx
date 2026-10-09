@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import type { Role } from '@/types';
 import { motion } from 'motion/react';
 import { ArrowRight, BadgeCheck, Eye, EyeOff, GraduationCap, HeartHandshake, LockKeyhole, Mail, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { useStore } from '@/store/AppStore';
@@ -17,12 +18,20 @@ export default function LoginPage() {
   const { user, login, childMode } = useStore();
   const { t } = useLang();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (user) return <Navigate to={user.role === 'parent' && childMode.active ? '/child' : homePathFor(user.role)} replace />;
+  /** Return to the page that sent the user here (e.g. a refreshed deep link), if it belongs to their role. */
+  const destinationFor = (role: Role): string => {
+    const from = (location.state as { from?: unknown } | null)?.from;
+    const area = role === 'parent' ? /^\/(parent|child)(\/|\?|$)/ : /^\/teacher(\/|\?|$)/;
+    return typeof from === 'string' && area.test(from) ? from : homePathFor(role);
+  };
+
+  if (user) return <Navigate to={user.role === 'parent' && childMode.active ? '/child' : destinationFor(user.role)} replace />;
 
   const submit = (e?: FormEvent, creds?: { email: string; password: string }) => {
     e?.preventDefault();
@@ -32,7 +41,7 @@ export default function LoginPage() {
       setError(res.error === 'empty' ? t('auth.errorEmpty') : t('auth.errorInvalid'));
       return;
     }
-    navigate(homePathFor(res.user.role), { replace: true });
+    navigate(destinationFor(res.user.role), { replace: true });
   };
 
   return (

@@ -812,6 +812,14 @@ const az = {
     demoReset: 'Demo məlumatları sıfırlandı',
     demoResetText: 'Bütün demo məlumatları ilkin vəziyyətə qaytarıldı.',
   },
+  errors: {
+    title: 'Bu ekranı göstərmək alınmadı',
+    text: 'Gözlənilməz xəta baş verdi. Yadda saxlanılmış məlumatlarınız qorunur.',
+    retry: 'Yenidən cəhd et',
+    reload: 'Səhifəni yenilə',
+    home: 'Başlanğıc səhifəyə keç',
+    reset: 'Demo məlumatlarını sıfırla və yenidən başla',
+  },
   notFound: {
     title: 'Bu səhifə tapılmadı',
     text: 'Görünür, yolumuzu azdıq. Gəlin əsas səhifəyə qayıdaq.',

@@ -2,7 +2,6 @@
   command = "npm run build"
   publish = "dist"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# SPA fallback lives in public/_redirects, which Vite copies into dist/ so it also applies
+# when dist/ is deployed manually. Netlify serves real files (JS, CSS, fonts) before this rewrite,
+# and unknown paths still reach the app, which renders its own Not Found page.

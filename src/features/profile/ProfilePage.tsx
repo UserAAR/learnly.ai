@@ -33,6 +33,9 @@ import { KidAvatar } from '@/components/illustrations/Brand';
 import { Badge, Button, Card, DemoBadge, PageHeader, ProgressRing, SectionHeader } from '@/components/ui';
 import { ProfileWizard } from './ProfileWizard';
 
+/** Deep copy for the wizard draft (plain JSON data; avoids relying on structuredClone support). */
+const cloneChild = (c: ChildProfile): ChildProfile => JSON.parse(JSON.stringify(c)) as ChildProfile;
+
 const SECTION_ICON: Record<ProfileSection, typeof Activity> = {
   basic: Users,
   diagnosis: ClipboardList,
@@ -53,7 +56,7 @@ export default function ProfilePage() {
       setWizard({ draft: emptyChild(user?.id ?? 'u-parent', uid('child'), data.children.length), step: 0, isNew: true });
       setParams({}, { replace: true });
     } else if (params.get('step')) {
-      setWizard({ draft: structuredClone(selectedChild), step: Number(params.get('step')) || 0, isNew: false });
+      setWizard({ draft: cloneChild(selectedChild), step: Number(params.get('step')) || 0, isNew: false });
       setParams({}, { replace: true });
     }
   }, [params, setParams, data.children.length, selectedChild, user]);
@@ -74,7 +77,7 @@ export default function ProfilePage() {
     );
   }
 
-  const openStep = (step: number) => setWizard({ draft: structuredClone(selectedChild), step, isNew: false });
+  const openStep = (step: number) => setWizard({ draft: cloneChild(selectedChild), step, isNew: false });
   return (
     <ProfileOverview
       child={selectedChild}

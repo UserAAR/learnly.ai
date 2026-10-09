@@ -36,7 +36,10 @@ export default function ChildHome() {
 
   const completedSlugs = useMemo(() => new Set(d.sessions.filter((s) => s.completed).map((s) => s.activitySlug)), [d.sessions]);
   const timesDone = (slug: string) => d.sessions.filter((s) => s.activitySlug === slug && s.completed).length;
-  const inProgress = Object.values(d.progress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const inProgress = Object.values(d.progress)
+    .filter((p) => LESSONS.some((x) => x.slug === p.slug) || GAMES.some((g) => g.slug === p.slug))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const inProgressTitle = inProgress ? (LESSONS.find((x) => x.slug === inProgress.slug) ?? GAMES.find((g) => g.slug === inProgress.slug))?.title : undefined;
 
   const journey = [...LESSONS.map((x) => ({ slug: x.slug, type: 'lesson' as const, title: x.title })), ...GAMES.map((g) => ({ slug: g.slug, type: 'game' as const, title: g.title }))];
   const todayKey = toDateKey(new Date());
@@ -155,14 +158,14 @@ export default function ChildHome() {
         </div>
 
         {/* ───────────── Continue ───────────── */}
-        {inProgress && (
+        {inProgress && inProgressTitle && (
           <motion.section {...rise(2)} className="mt-5 flex flex-col items-start gap-4 rounded-[32px] bg-gradient-to-r from-coral-500 to-[#FF8A5C] p-5 text-white shadow-[0_8px_0_#C43A2F] sm:flex-row sm:items-center sm:p-6">
             <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-white/20">
               <Play className="size-7" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-extrabold uppercase tracking-wider text-white/80">{t('child.continueTitle')}</p>
-              <p className="text-2xl font-black">{l((LESSONS.find((x) => x.slug === inProgress.slug) ?? GAMES.find((g) => g.slug === inProgress.slug))!.title)}</p>
+              <p className="text-2xl font-black">{l(inProgressTitle)}</p>
               <p className="text-sm font-bold text-white/85">
                 {t('child.stepOf', {
                   step: inProgress.stepIndex + 1,

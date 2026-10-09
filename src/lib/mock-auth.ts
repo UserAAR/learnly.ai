@@ -5,6 +5,7 @@
 import type { AuthSession, User } from '@/types';
 import { DEMO_PASSWORD, USERS, getUser } from '@/mocks/users';
 import { STORAGE_KEYS, readJSON, removeKey, writeJSON } from './mock-storage';
+import { sanitizeAuth } from './storage-schema';
 
 export type LoginResult = { ok: true; user: User; session: AuthSession } | { ok: false; error: 'invalid' | 'empty' };
 
@@ -19,10 +20,15 @@ export function mockLogin(email: string, password: string): LoginResult {
 }
 
 export function loadSession(): { session: AuthSession; user: User } | null {
-  const session = readJSON<AuthSession>(STORAGE_KEYS.auth);
+  const session = sanitizeAuth(readJSON(STORAGE_KEYS.auth));
   if (!session) return null;
   const user = getUser(session.userId);
-  return user ? { session, user } : null;
+  // A session for an unknown user or a mismatched role cannot be restored: treat as signed out.
+  if (!user || user.role !== session.role) {
+    removeKey(STORAGE_KEYS.auth);
+    return null;
+  }
+  return { session, user };
 }
 
 export function mockLogout(): void {

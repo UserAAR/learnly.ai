@@ -5,6 +5,7 @@ import { Delete, Lock, Volume2, VolumeX, Waves, Wind } from 'lucide-react';
 import { useStore } from '@/store/AppStore';
 import { useLang } from '@/hooks/useLang';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
+import { ErrorBoundary } from '@/components/feedback/ErrorBoundary';
 import { useSound } from '@/hooks/useSound';
 import { cn } from '@/lib/cn';
 import { WorldBackdrop } from '@/components/illustrations/World';
@@ -24,7 +25,9 @@ export default function ChildLayout() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
       >
-        <Outlet />
+        <ErrorBoundary resetKey={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </motion.div>
     </div>
   );

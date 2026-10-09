@@ -5,6 +5,7 @@ import { BadgeCheck, Inbox, LayoutGrid, LogOut, UserRoundCog } from 'lucide-reac
 import { useStore } from '@/store/AppStore';
 import { useLang } from '@/hooks/useLang';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
+import { ErrorBoundary } from '@/components/feedback/ErrorBoundary';
 import { cn } from '@/lib/cn';
 import { Logo } from '@/components/illustrations/Brand';
 import { LanguageSelector } from '@/components/navigation/Selectors';
@@ -98,7 +99,9 @@ export default function TeacherLayout() {
       </header>
       <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
         <motion.div key={location.pathname} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
+          <ErrorBoundary resetKey={location.pathname}>
           <Outlet />
+        </ErrorBoundary>
         </motion.div>
       </main>
     </div>

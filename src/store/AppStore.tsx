@@ -14,6 +14,7 @@ import type {
   User,
 } from '@/types';
 import { STORAGE_KEYS, readJSON, writeJSON } from '@/lib/mock-storage';
+import { sanitizeAppData, sanitizeChildMode, sanitizePrefs, type ChildModeState } from '@/lib/storage-schema';
 import { DATA_VERSION, createInitialData, demoHistoryFor, rebaseDemoDates } from '@/lib/demo-reset';
 import { loadSession, mockLogin, mockLogout, type LoginResult } from '@/lib/mock-auth';
 import { generateReport } from '@/lib/report-generator';
@@ -22,23 +23,14 @@ import { uid } from '@/lib/random';
 import { PARENT_USER } from '@/mocks/users';
 import i18n from '@/i18n';
 
-const DEFAULT_PREFS: Preferences = { language: 'az', soundEnabled: false, motion: 'system' };
-
-interface ChildModeState {
-  active: boolean;
-  childId: string | null;
-}
-
+/** Restores app data, keeping every valid stored record; falls back to fresh demo data only if nothing is usable. */
 function loadData(): AppData {
-  const stored = readJSON<AppData>(STORAGE_KEYS.data);
-  if (!stored || stored.version !== DATA_VERSION || !Array.isArray(stored.children) || stored.children.length === 0) {
-    return createInitialData();
-  }
-  return rebaseDemoDates(stored);
+  const stored = sanitizeAppData(readJSON(STORAGE_KEYS.data), DATA_VERSION);
+  return stored ? rebaseDemoDates(stored) : createInitialData();
 }
 
 function loadPrefs(): Preferences {
-  return { ...DEFAULT_PREFS, ...(readJSON<Partial<Preferences>>(STORAGE_KEYS.prefs) ?? {}) };
+  return sanitizePrefs(readJSON(STORAGE_KEYS.prefs));
 }
 
 export interface NewRequestInput {
@@ -93,9 +85,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(loadData);
   const [prefs, setPrefsState] = useState<Preferences>(loadPrefs);
   const [auth, setAuth] = useState(() => loadSession());
-  const [childMode, setChildMode] = useState<ChildModeState>(
-    () => readJSON<ChildModeState>(STORAGE_KEYS.childMode) ?? { active: false, childId: null },
-  );
+  const [childMode, setChildMode] = useState<ChildModeState>(() => sanitizeChildMode(readJSON(STORAGE_KEYS.childMode)));
 
   useEffect(() => writeJSON(STORAGE_KEYS.data, data), [data]);
   useEffect(() => writeJSON(STORAGE_KEYS.prefs, prefs), [prefs]);

@@ -62,9 +62,20 @@ These are product demonstration rules, not clinical thresholds.
 
 The synthetic history is deterministic (seeded). Its dates are relative to today and are shifted forward automatically when the app is opened on a later day. **Settings → Demo məlumatlarını sıfırla** restores everything.
 
-## Deployment (Netlify)
+## Deployment
 
-`netlify.toml` and `public/_redirects` are included. Use build command `npm run build` and publish directory `dist`. SPA routes work on direct navigation.
+Learnly uses real URLs (`BrowserRouter`), so the host must serve `index.html` for every client-side route. Otherwise a refresh or a direct link such as `/parent/reports` returns the server's 404.
+
+- **Netlify (configured):** build command `npm run build`, publish directory `dist`. The SPA rewrite is in `public/_redirects`, which Vite copies into `dist/`, so it also applies when `dist/` is uploaded manually. Real files (JS, CSS, fonts) are served before the rewrite. Unknown paths still reach the app, which shows its own Not Found page.
+- **Other static hosts:** add that host's equivalent "rewrite all routes to /index.html" rule. Opening `dist/index.html` from disk, or a plain file server without a fallback, will 404 on deep links.
+- **Sub-path hosting** (e.g. `https://example.com/learnly/`): build with `npx vite build --base /learnly/`. The router reads Vite's base URL, so links and deep links keep working.
+
+## Reliability notes
+
+- Everything restored from `localStorage` is validated (`src/lib/storage-schema.ts`). Valid records are kept, broken ones are dropped or repaired, and fresh demo data is seeded only when nothing usable remains. In development, a console warning explains what was repaired.
+- Error boundaries wrap the app, every route and each layout's page area. A failing screen shows recovery actions instead of a blank page. Navigating to another page clears the error, and development builds show the stack trace.
+- Opening or refreshing a `/child/...` URL starts child mode. Reaching it with the browser's Back/Forward after leaving via the PIN does not; the parent stays in the parent app.
+- After signing in, the user returns to the page they originally opened if it belongs to their role.
 
 ## Project structure
 
