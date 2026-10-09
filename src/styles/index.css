@@ -1,0 +1,255 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/nunito';
+
+/* ─────────────────────────── Learnly design tokens ─────────────────────────── */
+@theme {
+  --font-sans: 'Manrope Variable', 'Nunito Variable', system-ui, sans-serif;
+  --font-child: 'Nunito Variable', 'Manrope Variable', system-ui, sans-serif;
+
+  --color-cobalt-50: #eef3ff;
+  --color-cobalt-100: #dde7ff;
+  --color-cobalt-200: #bccdff;
+  --color-cobalt-300: #8eaaff;
+  --color-cobalt-400: #5f84fb;
+  --color-cobalt-500: #3563f6;
+  --color-cobalt-600: #2549d9;
+  --color-cobalt-700: #1f3bb0;
+  --color-cobalt-800: #1e3389;
+
+  --color-turquoise-50: #e6fbfb;
+  --color-turquoise-100: #c4f4f4;
+  --color-turquoise-300: #5fdfe1;
+  --color-turquoise-500: #10bfc3;
+  --color-turquoise-600: #0ea4a8;
+
+  --color-teal-500: #078f91;
+  --color-teal-600: #067476;
+  --color-teal-700: #075d60;
+
+  --color-coral-50: #fff0ee;
+  --color-coral-100: #ffe1dd;
+  --color-coral-300: #ffa49b;
+  --color-coral-500: #ff6b5e;
+  --color-coral-600: #ec4f42;
+  --color-coral-700: #c43a2f;
+
+  --color-sun-50: #fffae6;
+  --color-sun-100: #fff2c2;
+  --color-sun-300: #ffe07f;
+  --color-sun-400: #ffd34e;
+  --color-sun-500: #ffc21a;
+  --color-sun-700: #b3810a;
+
+  --color-leaf-50: #ebf9f1;
+  --color-leaf-100: #d0f1df;
+  --color-leaf-300: #7fd6a7;
+  --color-leaf-500: #36b878;
+  --color-leaf-600: #239a5f;
+  --color-leaf-700: #1b7a4b;
+
+  --color-violet-50: #f4efff;
+  --color-violet-100: #e7dcff;
+  --color-violet-300: #b49bf5;
+  --color-violet-500: #8158e8;
+  --color-violet-600: #6a3fd6;
+  --color-violet-700: #5530b3;
+
+  --color-navy-500: #2a3a78;
+  --color-navy-700: #1b2860;
+  --color-navy-800: #172554;
+  --color-navy-900: #0e1838;
+
+  --color-cream: #fff8e8;
+  --color-canvas: #f3f5fb;
+  --color-ink: #121a3a;
+  --color-muted: #59648a;
+  --color-line: #e2e7f3;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+  --radius-4xl: 2.25rem;
+
+  --shadow-card: 0 1px 2px rgb(18 26 58 / 0.04), 0 8px 24px -12px rgb(18 26 58 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(18 26 58 / 0.05), 0 22px 44px -18px rgb(23 37 84 / 0.32);
+  --shadow-glow: 0 18px 50px -16px rgb(53 99 246 / 0.55);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-drift: drift 60s linear infinite;
+  --animate-drop: drop 1.4s ease-in infinite;
+  --animate-bubble: bubble 3.2s ease-in-out infinite;
+  --animate-blink: blink 5s ease-in-out infinite;
+  --animate-sway: sway 5s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.4s ease-in-out infinite;
+  --animate-breathe: breathe 6s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes drift {
+    from { transform: translateX(-10%); }
+    to { transform: translateX(110vw); }
+  }
+  @keyframes drop {
+    0% { transform: translateY(-4px); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(46px); opacity: 0; }
+  }
+  @keyframes bubble {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: translateY(-38px) scale(1.05); opacity: 0; }
+  }
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.92); }
+    50% { transform: scale(1.08); }
+  }
+}
+
+/* ─────────────────────────── Base ─────────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  #root {
+    min-height: 100dvh;
+  }
+  /* Grid children may contain horizontally scrolling rows; never let them widen the page. */
+  .grid > * {
+    min-width: 0;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-cobalt-500);
+    outline-offset: 3px;
+    border-radius: 10px;
+  }
+  .child-shell :focus-visible {
+    outline: 4px solid var(--color-sun-400);
+    outline-offset: 4px;
+    border-radius: 18px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  ::selection {
+    background: var(--color-cobalt-100);
+  }
+}
+
+/* ─────────────────────────── Components ─────────────────────────── */
+@layer components {
+  .card {
+    @apply rounded-3xl border border-line bg-white;
+    box-shadow: var(--shadow-card);
+  }
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-muted;
+  }
+  .input {
+    @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-[15px] text-ink placeholder:text-muted/60 transition;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-cobalt-400);
+    box-shadow: 0 0 0 4px rgb(53 99 246 / 0.14);
+  }
+  .input[aria-invalid='true'] {
+    border-color: var(--color-coral-500);
+    box-shadow: 0 0 0 4px rgb(255 107 94 / 0.14);
+  }
+  .demo-stripes {
+    background-image: repeating-linear-gradient(135deg, rgb(255 211 78 / 0.35) 0 8px, rgb(255 211 78 / 0.15) 8px 16px);
+  }
+  .grain {
+    background-image: radial-gradient(rgb(255 255 255 / 0.18) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  /* Tactile child-mode button: a raised surface with a solid "edge" that presses down. */
+  .kid-btn {
+    @apply font-child relative inline-flex select-none items-center justify-center gap-2 rounded-[22px] font-extrabold transition-[transform,box-shadow,filter] duration-150;
+    box-shadow: 0 6px 0 var(--edge, #1f3bb0), 0 14px 24px -10px rgb(14 24 56 / 0.45);
+    transform: translateY(0);
+  }
+  .kid-btn:hover {
+    filter: brightness(1.04);
+  }
+  .kid-btn:active {
+    transform: translateY(5px);
+    box-shadow: 0 1px 0 var(--edge, #1f3bb0), 0 6px 12px -8px rgb(14 24 56 / 0.4);
+  }
+  .kid-btn:disabled {
+    filter: grayscale(0.4) brightness(0.98);
+    opacity: 0.65;
+  }
+
+  .tilt-surface {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .depth-1 { transform: translateZ(18px); }
+  .depth-2 { transform: translateZ(36px); }
+  .depth-3 { transform: translateZ(54px); }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ─────────────────────────── Reduced motion ─────────────────────────── */
+html[data-reduce-motion='true'] *,
+html[data-reduce-motion='true'] *::before,
+html[data-reduce-motion='true'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+html[data-reduce-motion='true'] .depth-1,
+html[data-reduce-motion='true'] .depth-2,
+html[data-reduce-motion='true'] .depth-3 {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-reduce-motion='false']) *,
+  html:not([data-reduce-motion='false']) *::before,
+  html:not([data-reduce-motion='false']) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Recharts focus outline cleanup */
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
